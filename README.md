@@ -37,6 +37,7 @@ Integração local do Home Assistant para a rede mesh **Intelbras Twibi**: prese
 
 No Home Assistant 2026.10 ou anterior, instale o [HACS](https://hacs.xyz/) antes e use:
 [![Abrir este repositório no HACS da sua instância do Home Assistant.][badge-my-hacs]][link-my-hacs]
+Depois baixe **Intelbras Twibi** no HACS e reinicie o Home Assistant.
 
 ### Manual
 
