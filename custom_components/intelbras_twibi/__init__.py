@@ -1,7 +1,5 @@
 """The Intelbras Twibi integration."""
 
-from __future__ import annotations
-
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -23,7 +21,9 @@ PLATFORMS = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: TwibiConfigEntry) -> bool:
     """Connect to the router and set up the platforms."""
-    client = TwibiClient(entry.data[CONF_HOST], entry.data[CONF_PASSWORD], async_get_clientsession(hass))
+    client = TwibiClient(
+        entry.data[CONF_HOST], entry.data[CONF_PASSWORD], async_get_clientsession(hass)
+    )
     coordinator = TwibiCoordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
     # Register the primary unit first so the other units can point at it.

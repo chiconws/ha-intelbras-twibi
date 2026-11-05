@@ -1,11 +1,10 @@
 """Config flow: router address and password; options pick the tracked clients."""
 
-from __future__ import annotations
-
 import logging
-from typing import Any
+from typing import Any, override
 
 import probatio
+
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.core import callback
@@ -20,7 +19,13 @@ from homeassistant.helpers.selector import (
     TextSelectorType,
 )
 
-from .api import RouterData, TwibiAuthError, TwibiClient, TwibiConnectionError, TwibiError
+from .api import (
+    RouterData,
+    TwibiAuthError,
+    TwibiClient,
+    TwibiConnectionError,
+    TwibiError,
+)
 from .const import CONF_TRACKED_DEVICES, CONF_WIFI_ONLY, DEFAULT_HOST, DOMAIN
 from .coordinator import TwibiConfigEntry
 
@@ -34,7 +39,9 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def _async_try(self, host: str, password: str) -> tuple[RouterData | None, dict[str, str]]:
+    async def _async_try(
+        self, host: str, password: str
+    ) -> tuple[RouterData | None, dict[str, str]]:
         """Read the router (logging in first); return the snapshot or form errors."""
         client = TwibiClient(host, password, async_get_clientsession(self.hass))
         try:
@@ -47,17 +54,29 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected reply from the router")
             return None, {"base": "unknown"}
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    @override
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Ask for the router address and password."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            data, errors = await self._async_try(user_input[CONF_HOST], user_input[CONF_PASSWORD])
+            data, errors = await self._async_try(
+                user_input[CONF_HOST], user_input[CONF_PASSWORD]
+            )
             if data:
                 await self.async_set_unique_id(data.primary.serial)
-                self._abort_if_unique_id_configured(updates={CONF_HOST: user_input[CONF_HOST]})
-                return self.async_create_entry(title=f"Twibi {data.primary.model}", data=user_input)
+                self._abort_if_unique_id_configured(
+                    updates={CONF_HOST: user_input[CONF_HOST]}
+                )
+                return self.async_create_entry(
+                    title=f"Twibi {data.primary.model}", data=user_input
+                )
         schema = probatio.Schema(
-            {probatio.Required(CONF_HOST, default=DEFAULT_HOST): str, probatio.Required(CONF_PASSWORD): PASSWORD}
+            {
+                probatio.Required(CONF_HOST, default=DEFAULT_HOST): str,
+                probatio.Required(CONF_PASSWORD): PASSWORD,
+            }
         )
         return self.async_show_form(
             step_id="user",
@@ -76,9 +95,13 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reauth_entry()
         errors: dict[str, str] = {}
         if user_input is not None:
-            data, errors = await self._async_try(entry.data[CONF_HOST], user_input[CONF_PASSWORD])
+            data, errors = await self._async_try(
+                entry.data[CONF_HOST], user_input[CONF_PASSWORD]
+            )
             if data:
-                return self.async_update_reload_and_abort(entry, data_updates=user_input)
+                return self.async_update_reload_and_abort(
+                    entry, data_updates=user_input
+                )
         return self.async_show_form(
             step_id="reauth_confirm",
             data_schema=probatio.Schema({probatio.Required(CONF_PASSWORD): PASSWORD}),
@@ -92,20 +115,32 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
         if user_input is not None:
-            data, errors = await self._async_try(user_input[CONF_HOST], user_input[CONF_PASSWORD])
+            data, errors = await self._async_try(
+                user_input[CONF_HOST], user_input[CONF_PASSWORD]
+            )
             if data:
                 await self.async_set_unique_id(data.primary.serial)
                 self._abort_if_unique_id_mismatch(reason="wrong_router")
-                return self.async_update_reload_and_abort(entry, data_updates=user_input)
-        schema = probatio.Schema({probatio.Required(CONF_HOST): str, probatio.Required(CONF_PASSWORD): PASSWORD})
+                return self.async_update_reload_and_abort(
+                    entry, data_updates=user_input
+                )
+        schema = probatio.Schema(
+            {
+                probatio.Required(CONF_HOST): str,
+                probatio.Required(CONF_PASSWORD): PASSWORD,
+            }
+        )
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=self.add_suggested_values_to_schema(schema, user_input or entry.data),
+            data_schema=self.add_suggested_values_to_schema(
+                schema, user_input or entry.data
+            ),
             errors=errors,
         )
 
     @staticmethod
     @callback
+    @override
     def async_get_options_flow(config_entry: TwibiConfigEntry) -> TwibiOptionsFlow:
         """Choose which clients to track."""
         return TwibiOptionsFlow()
@@ -114,7 +149,9 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
 class TwibiOptionsFlow(OptionsFlow):
     """Pick tracked clients from the ones online now."""
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Show the client list."""
         if user_input is not None:
             return self.async_create_entry(data=user_input)
@@ -123,13 +160,25 @@ class TwibiOptionsFlow(OptionsFlow):
         selected: list[str] = entry.options.get(CONF_TRACKED_DEVICES, [])
         options = [
             SelectOptionDict(value=mac, label=f"{c.name or mac} ({c.ip}, {c.band})")
-            for mac, c in sorted(clients.items(), key=lambda i: (i[1].name or i[0]).lower())
-        ] + [SelectOptionDict(value=mac, label=mac) for mac in selected if mac not in clients]
+            for mac, c in sorted(
+                clients.items(), key=lambda i: (i[1].name or i[0]).lower()
+            )
+        ] + [
+            SelectOptionDict(value=mac, label=mac)
+            for mac in selected
+            if mac not in clients
+        ]
         schema = probatio.Schema(
             {
-                probatio.Required(CONF_WIFI_ONLY, default=entry.options.get(CONF_WIFI_ONLY, False)): bool,
-                probatio.Optional(CONF_TRACKED_DEVICES, default=selected): SelectSelector(
-                    SelectSelectorConfig(options=options, multiple=True, mode=SelectSelectorMode.DROPDOWN)
+                probatio.Required(
+                    CONF_WIFI_ONLY, default=entry.options.get(CONF_WIFI_ONLY, False)
+                ): bool,
+                probatio.Optional(
+                    CONF_TRACKED_DEVICES, default=selected
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=options, multiple=True, mode=SelectSelectorMode.DROPDOWN
+                    )
                 ),
             }
         )

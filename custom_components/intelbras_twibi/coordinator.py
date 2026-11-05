@@ -1,8 +1,7 @@
 """Polls the router and shares one snapshot with every entity."""
 
-from __future__ import annotations
-
 import logging
+from typing import override
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -22,14 +21,21 @@ class TwibiCoordinator(DataUpdateCoordinator[RouterData]):
 
     config_entry: TwibiConfigEntry
 
-    def __init__(self, hass: HomeAssistant, entry: TwibiConfigEntry, client: TwibiClient) -> None:
+    def __init__(
+        self, hass: HomeAssistant, entry: TwibiConfigEntry, client: TwibiClient
+    ) -> None:
         """Set up the coordinator."""
         super().__init__(
-            hass, _LOGGER, config_entry=entry, name=DOMAIN, update_interval=SCAN_INTERVAL
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=DOMAIN,
+            update_interval=SCAN_INTERVAL,
         )
         self.client = client
         self.primary_device_id: str | None = None  # set in async_setup_entry
 
+    @override
     async def _async_update_data(self) -> RouterData:
         try:
             return await self.client.async_get_data()

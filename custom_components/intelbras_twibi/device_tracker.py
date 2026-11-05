@@ -1,6 +1,6 @@
 """Device trackers: one per client of the mesh."""
 
-from __future__ import annotations
+from typing import override
 
 from homeassistant.components.device_tracker import ScannerEntity
 from homeassistant.core import HomeAssistant, callback
@@ -16,7 +16,9 @@ PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: TwibiConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: TwibiConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Track the chosen clients, or every client seen if none were chosen."""
     coordinator = entry.runtime_data
@@ -45,14 +47,18 @@ async def async_setup_entry(
                 }
         if new := wanted - known:
             known.update(new)
-            async_add_entities(TwibiTracker(coordinator, mac, bool(selected)) for mac in sorted(new))
+            async_add_entities(
+                TwibiTracker(coordinator, mac, bool(selected)) for mac in sorted(new)
+            )
 
     add_new()
     entry.async_on_unload(coordinator.async_add_listener(add_new))
 
 
 @callback
-def _apply_selection(hass: HomeAssistant, entry: TwibiConfigEntry, selected: set[str]) -> None:
+def _apply_selection(
+    hass: HomeAssistant, entry: TwibiConfigEntry, selected: set[str]
+) -> None:
     """Enable the chosen trackers and remove the rest (they were created before the choice)."""
     registry = er.async_get(hass)
     for reg in er.async_entries_for_config_entry(registry, entry.entry_id):
@@ -77,6 +83,7 @@ class TwibiTracker(CoordinatorEntity[TwibiCoordinator], ScannerEntity):
         self._attr_name = (client.name if client else "") or mac
 
     @property
+    @override
     def entity_registry_enabled_default(self) -> bool:
         """Enable clients the user picked; others follow Home Assistant's default."""
         return self._chosen or super().entity_registry_enabled_default
@@ -86,26 +93,28 @@ class TwibiTracker(CoordinatorEntity[TwibiCoordinator], ScannerEntity):
         return self.coordinator.data.clients.get(self._mac)
 
     @property
+    @override
     def is_connected(self) -> bool:
         """Return whether the client is online."""
         return self._client is not None
 
     @property
+    @override
     def ip_address(self) -> str | None:
         """Return the client's current IP."""
         client = self._client
         return client.ip if client else None
 
     @property
+    @override
     def hostname(self) -> str | None:
         """Return the name the router knows."""
         client = self._client
         return client.name if client and client.name else None
 
     @property
+    @override
     def extra_state_attributes(self) -> dict[str, str]:
         """Expose how the client is connected."""
         client = self._client
         return {"connection": client.band} if client else {}
-
-

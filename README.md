@@ -1,6 +1,6 @@
 # Intelbras Twibi
 
-[![HACS][badge-hacs]][link-hacs]
+[![Marketplace][badge-marketplace]][link-marketplace]
 [![GitHub Release][badge-release]][link-release]
 [![Home Assistant][badge-ha]][link-ha]
 [![GitHub Commit Activity][badge-commit-activity]][link-commits]
@@ -21,20 +21,23 @@ Integração local do Home Assistant para a rede mesh **Intelbras Twibi**: prese
 
 ## Requisitos
 
-- Home Assistant 2024.12 ou mais recente
+- Home Assistant 2026.9 ou mais recente
 - Rede Twibi (Fast, Giga ou Force) acessível pelo Home Assistant
 - A senha de administração do Twibi
 
 ## Instalação
 
-### HACS (recomendado)
+### Marketplace (recomendado)
 
-[![Abrir este repositório no HACS da sua instância do Home Assistant.][badge-my-hacs]][link-my-hacs]
+[![Abrir este repositório no Marketplace da sua instância do Home Assistant.][badge-my-marketplace]][link-my-marketplace]
 
-1. Clique no botão acima, ou abra **HACS → ⋮ → Repositórios personalizados** e adicione
-   `https://github.com/chiconws/ha-intelbras-twibi` com o tipo **Integração**.
-2. Procure por **Intelbras Twibi** no HACS e clique em **Baixar**.
+1. Clique no botão acima. Se o Home Assistant pedir, confirme a adição do repositório.
+2. Baixe **Intelbras Twibi** em **Configurações → Marketplace**.
 3. Reinicie o Home Assistant.
+
+No Home Assistant 2026.10 ou anterior, instale o [HACS](https://hacs.xyz/) antes e use:
+[![Abrir este repositório no HACS da sua instância do Home Assistant.][badge-my-hacs]][link-my-hacs]
+Depois baixe **Intelbras Twibi** no HACS e reinicie o Home Assistant.
 
 ### Manual
 
@@ -94,30 +97,25 @@ logger:
 
 ## Desenvolvimento
 
-Veja o [AGENTS.md](AGENTS.md) para a estrutura do código. Verificações rápidas:
-
-```bash
-uv venv --python 3.14 .venv && uv pip install -r requirements_test.txt
-python -m ruff check custom_components/intelbras_twibi tests
-python -m pytest
-```
+Veja o [CONTRIBUTING.md](CONTRIBUTING.md) para configurar o ambiente, rodar as verificações e os testes, e o [AGENTS.md](AGENTS.md) para a estrutura do código.
 
 ## Licença
 
 MIT, veja [LICENSE](LICENSE).
 
-[badge-hacs]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg
+[badge-marketplace]: https://img.shields.io/badge/Marketplace-Custom-41BDF5.svg
 [badge-release]: https://img.shields.io/github/v/release/chiconws/ha-intelbras-twibi
-[badge-ha]: https://img.shields.io/badge/Home%20Assistant-2024.12%2B-41BDF5?logo=home-assistant
+[badge-ha]: https://img.shields.io/badge/Home%20Assistant-2026.9%2B-41BDF5?logo=home-assistant
 [badge-commit-activity]: https://img.shields.io/github/commit-activity/m/chiconws/ha-intelbras-twibi
 [badge-hacs-validation]: https://github.com/chiconws/ha-intelbras-twibi/actions/workflows/hacs.yaml/badge.svg
 [badge-hassfest]: https://github.com/chiconws/ha-intelbras-twibi/actions/workflows/hassfest.yaml/badge.svg
 [badge-tests]: https://github.com/chiconws/ha-intelbras-twibi/actions/workflows/tests.yaml/badge.svg
 [badge-license]: https://img.shields.io/github/license/chiconws/ha-intelbras-twibi
+[badge-my-marketplace]: https://my.home-assistant.io/badges/marketplace_repository.svg
 [badge-my-hacs]: https://my.home-assistant.io/badges/hacs_repository.svg
 [badge-my-config]: https://my.home-assistant.io/badges/config_flow_start.svg
 
-[link-hacs]: https://hacs.xyz/
+[link-marketplace]: https://www.home-assistant.io/integrations/marketplace/
 [link-release]: https://github.com/chiconws/ha-intelbras-twibi/releases/latest
 [link-ha]: https://www.home-assistant.io/
 [link-commits]: https://github.com/chiconws/ha-intelbras-twibi/commits/main
@@ -125,5 +123,6 @@ MIT, veja [LICENSE](LICENSE).
 [link-hassfest]: https://github.com/chiconws/ha-intelbras-twibi/actions/workflows/hassfest.yaml
 [link-tests]: https://github.com/chiconws/ha-intelbras-twibi/actions/workflows/tests.yaml
 [link-license]: LICENSE
+[link-my-marketplace]: https://my.home-assistant.io/redirect/marketplace_repository/?owner=chiconws&repository=ha-intelbras-twibi&category=integration
 [link-my-hacs]: https://my.home-assistant.io/redirect/hacs_repository/?owner=chiconws&repository=ha-intelbras-twibi&category=integration
 [link-my-config]: https://my.home-assistant.io/redirect/config_flow_start/?domain=intelbras_twibi

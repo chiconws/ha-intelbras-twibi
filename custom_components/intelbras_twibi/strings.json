@@ -1,8 +1,30 @@
 {
   "config": {
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]",
+      "wrong_router": "This address belongs to a different Twibi mesh."
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
     "step": {
+      "reauth_confirm": {
+        "data": {
+          "password": "[%key:common::config_flow::data::password%]"
+        },
+        "description": "The Twibi rejected the saved password. Enter the current one."
+      },
+      "reconfigure": {
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]",
+          "password": "[%key:common::config_flow::data::password%]"
+        }
+      },
       "user": {
-        "description": "Connect to the primary Twibi unit, the one plugged into your modem.",
         "data": {
           "host": "[%key:common::config_flow::data::host%]",
           "password": "[%key:common::config_flow::data::password%]"
@@ -10,44 +32,8 @@
         "data_description": {
           "host": "IP address of the primary Twibi. The default for Twibi is 192.168.5.1.",
           "password": "The password you use in the Twibi app or web page."
-        }
-      },
-      "reauth_confirm": {
-        "description": "The Twibi rejected the saved password. Enter the current one.",
-        "data": {
-          "password": "[%key:common::config_flow::data::password%]"
-        }
-      },
-      "reconfigure": {
-        "data": {
-          "host": "[%key:common::config_flow::data::host%]",
-          "password": "[%key:common::config_flow::data::password%]"
-        }
-      }
-    },
-    "error": {
-      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
-      "unknown": "[%key:common::config_flow::error::unknown%]"
-    },
-    "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
-      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
-      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]",
-      "wrong_router": "This address belongs to a different Twibi mesh."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "wifi_only": "Only track Wi-Fi clients",
-          "tracked_devices": "Tracked devices"
         },
-        "data_description": {
-          "wifi_only": "Skip devices plugged in by cable when tracking every client.",
-          "tracked_devices": "Leave empty to track every client the mesh sees."
-        }
+        "description": "Connect to the primary Twibi unit, the one plugged into your modem."
       }
     }
   },
@@ -62,12 +48,12 @@
       "led": { "name": "Status LED" }
     },
     "sensor": {
-      "wan_download": { "name": "Download speed" },
-      "wan_upload": { "name": "Upload speed" },
       "connected_clients": { "name": "Connected clients" },
-      "wan_ip": { "name": "WAN IP address" },
       "last_boot": { "name": "Last boot" },
-      "link_quality": { "name": "Mesh link quality" }
+      "link_quality": { "name": "Mesh link quality" },
+      "wan_download": { "name": "Download speed" },
+      "wan_ip": { "name": "WAN IP address" },
+      "wan_upload": { "name": "Upload speed" }
     },
     "switch": {
       "guest_wifi": { "name": "Guest Wi-Fi" },
@@ -75,8 +61,24 @@
     }
   },
   "exceptions": {
+    "command_failed": {
+      "message": "The Twibi did not accept the command: {error}"
+    },
     "invalid_auth": { "message": "The Twibi rejected the password." },
-    "update_failed": { "message": "Could not read the Twibi: {error}" },
-    "command_failed": { "message": "The Twibi did not accept the command: {error}" }
+    "update_failed": { "message": "Could not read the Twibi: {error}" }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "tracked_devices": "Tracked devices",
+          "wifi_only": "Only track Wi-Fi clients"
+        },
+        "data_description": {
+          "tracked_devices": "Leave empty to track every client the mesh sees.",
+          "wifi_only": "Skip devices plugged in by cable when tracking every client."
+        }
+      }
+    }
   }
 }

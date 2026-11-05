@@ -1,14 +1,12 @@
 """Async client for the Intelbras Twibi local HTTP API. No Home Assistant imports."""
 
-from __future__ import annotations
-
 import asyncio
+from dataclasses import dataclass, field
 import hashlib
 import json
 import logging
 import time
-from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import aiohttp
 
@@ -65,7 +63,9 @@ class Node:
             led_on=str(data.get("led")) == "1",
             uptime=_num(int, data.get("Uptime")),
             wan_connected=str(data.get("net_status")) == "1",
-            link_quality=_backhaul_dbm(data.get("link_quality")) if not is_primary else None,
+            link_quality=_backhaul_dbm(data.get("link_quality"))
+            if not is_primary
+            else None,
         )
 
 
@@ -81,7 +81,9 @@ class Client:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Client:
         """Parse an online_list entry."""
-        band = {"--": "wired", "AC": "5ghz", "BGN": "2.4ghz"}.get(data.get("wifi_mode", ""), "wired")
+        band = {"--": "wired", "AC": "5ghz", "BGN": "2.4ghz"}.get(
+            data.get("wifi_mode", ""), "wired"
+        )
         return cls(
             mac=data["dev_mac"].upper(),
             name=data.get("dev_name") or "",
@@ -153,7 +155,9 @@ class RouterData:
 class TwibiClient:
     """Talks to /goform on the primary node."""
 
-    def __init__(self, host: str, password: str, session: aiohttp.ClientSession) -> None:
+    def __init__(
+        self, host: str, password: str, session: aiohttp.ClientSession
+    ) -> None:
         """Store connection details; nothing is sent until the first call."""
         self.host = host
         self._password = password
@@ -224,7 +228,9 @@ class TwibiClient:
         await self._command("sys_reboot", {"action": "reboot"})
 
     async def _get(self, modules: tuple[str, ...]) -> dict[str, Any]:
-        return await self._authed("GET", f"{self._url}/get?module_id={','.join(modules)}")
+        return await self._authed(
+            "GET", f"{self._url}/get?module_id={','.join(modules)}"
+        )
 
     async def _command(self, name: str, values: dict[str, Any]) -> None:
         payload = {name: {**values, "timestamp": str(_now_ms())}}
@@ -232,7 +238,9 @@ class TwibiClient:
         if str(data.get("errcode", "0")) != "0":
             raise TwibiError(f"Router rejected {name} (errcode {data.get('errcode')})")
 
-    async def _authed(self, method: str, url: str, payload: dict | None = None) -> dict[str, Any]:
+    async def _authed(
+        self, method: str, url: str, payload: dict | None = None
+    ) -> dict[str, Any]:
         """Send a request, logging in first and once more if the session expired."""
         for attempt in range(2):
             async with self._lock:
@@ -243,13 +251,19 @@ class TwibiClient:
             except _SessionExpired:
                 self._logged_in = False
                 if attempt == 0 and self._cookie and not self._cookie_auth:
-                    self._cookie_auth = True  # newer firmware: retry with the cookie header
+                    self._cookie_auth = (
+                        True  # newer firmware: retry with the cookie header
+                    )
         raise TwibiError("Router keeps returning the login page")
 
     async def _send(
         self, method: str, url: str, payload: dict | None, *, login: bool = False
     ) -> dict[str, Any]:
-        headers = {"Cookie": self._cookie} if self._cookie and self._cookie_auth and not login else None
+        headers = (
+            {"Cookie": self._cookie}
+            if self._cookie and self._cookie_auth and not login
+            else None
+        )
         try:
             async with self._session.request(
                 method, url, json=payload, headers=headers, timeout=TIMEOUT
@@ -261,16 +275,22 @@ class TwibiClient:
             raise TwibiConnectionError(f"Cannot reach {self.host}: {err}") from err
         if not text.strip():
             raise TwibiError("Empty reply from router")
-        if "<html" in text[:200].lower() or text.lstrip().lower().startswith("<!doctype"):
+        if "<html" in text[:200].lower() or text.lstrip().lower().startswith(
+            "<!doctype"
+        ):
             raise _SessionExpired
         try:
-            return json.loads(text)
+            return cast(dict[str, Any], json.loads(text))
         except json.JSONDecodeError as err:
             raise TwibiError(f"Invalid JSON from router: {text[:100]!r}") from err
 
     def _store_cookie(self, resp: aiohttp.ClientResponse) -> None:
         # HA's shared session rejects cookies from IP hosts, so keep it ourselves.
-        name = SESSION_COOKIE if SESSION_COOKIE in resp.cookies else next(iter(resp.cookies), None)
+        name = (
+            SESSION_COOKIE
+            if SESSION_COOKIE in resp.cookies
+            else next(iter(resp.cookies), None)
+        )
         if name and (value := resp.cookies[name].value):
             self._cookie = f"{name}={value}"
             self._cookie_auth = self._cookie_auth or name == SESSION_COOKIE
@@ -287,7 +307,7 @@ def _now_ms() -> int:
 def _num[T: (int, float)](cast: type[T], value: Any) -> T | None:
     try:
         return cast(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
 
 

@@ -1,9 +1,7 @@
 {
   "domain": "intelbras_twibi",
   "name": "Intelbras Twibi",
-  "codeowners": [
-    "@chiconws"
-  ],
+  "codeowners": ["@chiconws"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/chiconws/ha-intelbras-twibi",

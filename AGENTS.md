@@ -1,7 +1,5 @@
 # Agent Notes: Intelbras Twibi
 
-Standard: ha-standards v0.5.2
-
 Language: README in **pt-BR**; code, logs and `strings.json` in English; translations en + pt-BR.
 
 ## Overview
@@ -31,13 +29,14 @@ All code in `custom_components/intelbras_twibi/`.
 
 ## Local validation (before push)
 
+`.venv/bin/prek install` once per clone; the git hook then runs ruff (lint + format), codespell, yamllint, prettier, zizmor, markdownlint, mypy and Pyright. By hand:
+
 ```bash
-python -m ruff check custom_components/intelbras_twibi tests
-python -m coverage run -m pytest -q && python -m coverage report
+SKIP=no-commit-to-branch .venv/bin/prek run --all-files --hook-stage manual
+.venv/bin/coverage run -m pytest -q && .venv/bin/coverage report
 ```
 
-Deploy to the dev HA VM: VS Code tasks in `.vscode/` (`ha_vm.py`, config in `ha-instance.local.json`, gitignored).
-Test payloads live in `tests/fixtures/router.json` (anonymised; never commit real MACs or serials).
+Contributor setup: `CONTRIBUTING.md`.
 
 ## Deviations from standard
 
