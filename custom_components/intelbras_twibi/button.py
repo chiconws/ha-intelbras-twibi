@@ -1,6 +1,6 @@
 """Button: reboot the mesh."""
 
-from __future__ import annotations
+from typing import override
 
 from homeassistant.components.button import ButtonDeviceClass, ButtonEntity
 from homeassistant.const import EntityCategory
@@ -14,11 +14,15 @@ PARALLEL_UPDATES = 1
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: TwibiConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: TwibiConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the reboot button."""
     coordinator = entry.runtime_data
-    async_add_entities([TwibiRebootButton(coordinator, coordinator.data.primary.serial, "reboot")])
+    async_add_entities(
+        [TwibiRebootButton(coordinator, coordinator.data.primary.serial, "reboot")]
+    )
 
 
 class TwibiRebootButton(TwibiEntity, ButtonEntity):
@@ -27,6 +31,7 @@ class TwibiRebootButton(TwibiEntity, ButtonEntity):
     _attr_device_class = ButtonDeviceClass.RESTART
     _attr_entity_category = EntityCategory.CONFIG
 
+    @override
     async def async_press(self) -> None:
         """Send the reboot command."""
         await self._async_command(self.coordinator.client.async_reboot(), refresh=False)

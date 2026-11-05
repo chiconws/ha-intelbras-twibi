@@ -1,7 +1,5 @@
 """Diagnostics: the raw router reply with secrets removed."""
 
-from __future__ import annotations
-
 from typing import Any
 
 from homeassistant.components.diagnostics import async_redact_data
@@ -10,7 +8,16 @@ from homeassistant.core import HomeAssistant
 
 from .coordinator import TwibiConfigEntry
 
-TO_REDACT = {CONF_PASSWORD, "guest_pass", "pass", "sn", "serial_number", "groupsn", "ip", "dev_ip"}
+TO_REDACT = {
+    CONF_PASSWORD,
+    "guest_pass",
+    "pass",
+    "sn",
+    "serial_number",
+    "groupsn",
+    "ip",
+    "dev_ip",
+}
 
 
 async def async_get_config_entry_diagnostics(

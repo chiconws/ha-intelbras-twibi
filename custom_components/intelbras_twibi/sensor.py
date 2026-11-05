@@ -1,10 +1,9 @@
 """Sensors: WAN throughput, client count, WAN IP, node uptime and mesh link."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import override
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -12,7 +11,11 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory, UnitOfDataRate
+from homeassistant.const import (
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+    EntityCategory,
+    UnitOfDataRate,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
@@ -70,7 +73,9 @@ LINK_QUALITY = SensorEntityDescription(
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: TwibiConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: TwibiConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the router and per-node sensors."""
     coordinator = entry.runtime_data
@@ -81,7 +86,9 @@ async def async_setup_entry(
     for node in coordinator.data.nodes:
         entities.append(TwibiUptimeSensor(coordinator, node.serial))
         if not node.is_primary:
-            entities.append(TwibiLinkQualitySensor(coordinator, node.serial, LINK_QUALITY.key))
+            entities.append(
+                TwibiLinkQualitySensor(coordinator, node.serial, LINK_QUALITY.key)
+            )
     async_add_entities(entities)
 
 
@@ -91,13 +98,17 @@ class TwibiRouterSensor(TwibiEntity, SensorEntity):
     entity_description: TwibiRouterSensorDescription
 
     def __init__(
-        self, coordinator: TwibiCoordinator, serial: str, description: TwibiRouterSensorDescription
+        self,
+        coordinator: TwibiCoordinator,
+        serial: str,
+        description: TwibiRouterSensorDescription,
     ) -> None:
         """Bind the description."""
         super().__init__(coordinator, serial, description.key)
         self.entity_description = description
 
     @property
+    @override
     def native_value(self) -> float | int | str | None:
         """Read the value from the latest snapshot."""
         return self.entity_description.value_fn(self.coordinator.data)
@@ -109,6 +120,7 @@ class TwibiLinkQualitySensor(TwibiEntity, SensorEntity):
     entity_description = LINK_QUALITY
 
     @property
+    @override
     def native_value(self) -> int | None:
         """Return the Wi-Fi backhaul signal in dBm (unknown on a cabled backhaul)."""
         node = self.node
@@ -127,6 +139,7 @@ class TwibiUptimeSensor(TwibiEntity, SensorEntity):
         self._boot: datetime | None = None
 
     @property
+    @override
     def native_value(self) -> datetime | None:
         """Return the boot time, stable across polls."""
         node: Node | None = self.node

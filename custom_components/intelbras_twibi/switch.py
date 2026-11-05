@@ -1,10 +1,8 @@
 """Switches: guest Wi-Fi and UPnP."""
 
-from __future__ import annotations
-
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, override
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.const import EntityCategory
@@ -42,7 +40,9 @@ SWITCHES = (
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: TwibiConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: TwibiConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the switches the router reports."""
     coordinator = entry.runtime_data
@@ -60,29 +60,40 @@ class TwibiSwitch(TwibiEntity, SwitchEntity):
     entity_description: TwibiSwitchDescription
 
     def __init__(
-        self, coordinator: TwibiCoordinator, serial: str, description: TwibiSwitchDescription
+        self,
+        coordinator: TwibiCoordinator,
+        serial: str,
+        description: TwibiSwitchDescription,
     ) -> None:
         """Bind the description."""
         super().__init__(coordinator, serial, description.key)
         self.entity_description = description
 
     @property
+    @override
     def available(self) -> bool:
         """Unavailable when the router stops reporting this setting."""
         return super().available and self.is_on is not None
 
     @property
+    @override
     def is_on(self) -> bool | None:
         """Read the setting from the latest snapshot."""
         return self.entity_description.is_on_fn(self.coordinator.data)
 
+    @override
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the setting on."""
         await self._set(True)
 
+    @override
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the setting off."""
         await self._set(False)
 
     async def _set(self, on: bool) -> None:
-        await self._async_command(self.entity_description.set_fn(self.coordinator.client, self.coordinator.data, on))
+        await self._async_command(
+            self.entity_description.set_fn(
+                self.coordinator.client, self.coordinator.data, on
+            )
+        )

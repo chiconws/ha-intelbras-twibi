@@ -1,4 +1,4 @@
-# Target: Silver (ha-standards). "todo" items are tracked until the README rewrite.
+# Target: Silver. "todo" items are tracked until the README rewrite.
 rules:
   # Bronze
   action-setup:

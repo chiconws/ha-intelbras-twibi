@@ -1,8 +1,7 @@
 """Base entity: every entity belongs to one mesh node."""
 
-from __future__ import annotations
-
 from collections.abc import Awaitable
+from typing import override
 
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
@@ -47,14 +46,19 @@ class TwibiEntity(CoordinatorEntity[TwibiCoordinator]):
     @property
     def node(self) -> Node | None:
         """Return this entity's node in the latest snapshot."""
-        return next((n for n in self.coordinator.data.nodes if n.serial == self._serial), None)
+        return next(
+            (n for n in self.coordinator.data.nodes if n.serial == self._serial), None
+        )
 
     @property
+    @override
     def available(self) -> bool:
         """Unavailable while the node is missing from the mesh."""
         return super().available and self.node is not None
 
-    async def _async_command(self, command: Awaitable[None], refresh: bool = True) -> None:
+    async def _async_command(
+        self, command: Awaitable[None], refresh: bool = True
+    ) -> None:
         """Run a router command, surfacing failures to the user."""
         try:
             await command

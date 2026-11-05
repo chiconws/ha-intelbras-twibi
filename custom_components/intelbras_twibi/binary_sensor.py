@@ -1,8 +1,11 @@
 """Binary sensor: is the primary node online."""
 
-from __future__ import annotations
+from typing import override
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -13,11 +16,15 @@ PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: TwibiConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: TwibiConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the WAN connectivity sensor."""
     coordinator = entry.runtime_data
-    async_add_entities([TwibiWanSensor(coordinator, coordinator.data.primary.serial, "wan")])
+    async_add_entities(
+        [TwibiWanSensor(coordinator, coordinator.data.primary.serial, "wan")]
+    )
 
 
 class TwibiWanSensor(TwibiEntity, BinarySensorEntity):
@@ -26,6 +33,7 @@ class TwibiWanSensor(TwibiEntity, BinarySensorEntity):
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
 
     @property
+    @override
     def is_on(self) -> bool | None:
         """Return whether the WAN link is up."""
         node = self.node
