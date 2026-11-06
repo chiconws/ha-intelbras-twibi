@@ -202,3 +202,13 @@ async def test_rejected_command(
     aioclient_mock.post(SET, json={"errcode": "7"})
     with pytest.raises(TwibiError, match="errcode 7"):
         await client.async_reboot()
+
+
+async def test_malformed_node_is_a_twibi_error(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, payload
+) -> None:
+    """A node without a serial raises TwibiError, not KeyError."""
+    del payload["node_info"][0]["sn"]
+    mock_router(aioclient_mock, payload)
+    with pytest.raises(TwibiError, match="Unexpected router reply"):
+        await make_client(hass).async_get_data()

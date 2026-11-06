@@ -6,6 +6,7 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.const import CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 
+from .const import CONF_TRACKED_DEVICES
 from .coordinator import TwibiConfigEntry
 
 TO_REDACT = {
@@ -17,6 +18,12 @@ TO_REDACT = {
     "groupsn",
     "ip",
     "dev_ip",
+    "mac",
+    "dev_mac",
+    "lan_mac",
+    "wan_mac",
+    "2Gwifi_mac",
+    "5Gwifi_mac",
 }
 
 
@@ -26,6 +33,6 @@ async def async_get_config_entry_diagnostics(
     """Return what the router reported on the last poll."""
     return {
         "entry": async_redact_data(dict(entry.data), TO_REDACT),
-        "options": dict(entry.options),
+        "options": async_redact_data(dict(entry.options), {CONF_TRACKED_DEVICES}),
         "router": async_redact_data(entry.runtime_data.data.raw, TO_REDACT),
     }

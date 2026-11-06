@@ -212,3 +212,42 @@ async def test_missing_settings_hide_switches(
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     assert hass.states.async_entity_ids("switch") == []
+
+
+async def test_switches_appear_when_module_recovers(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    client,
+    payload,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    """A switch whose module failed on the first poll is added once it reports."""
+    saved = {k: payload.pop(k) for k in ("guest_info", "upnp_info")}
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.async_entity_ids("switch") == []
+
+    payload.update(saved)
+    freezer.tick(timedelta(seconds=30))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(hass.states.async_entity_ids("switch")) == 2
+
+
+async def test_wifi_only_drops_wired_trackers_from_earlier_sessions(
+    hass: HomeAssistant, loaded
+) -> None:
+    """Turning on Wi-Fi only removes a wired tracker created before."""
+    registry = er.async_get(hass)
+    wired = registry.async_get_entity_id(
+        "device_tracker", "intelbras_twibi", "11:22:33:44:55:02"
+    )
+    assert wired
+
+    hass.config_entries.async_update_entry(loaded, options={CONF_WIFI_ONLY: True})
+    await hass.async_block_till_done()  # update listener reloads the entry
+
+    assert registry.async_get(wired) is None
+    assert registry.async_get_entity_id(
+        "device_tracker", "intelbras_twibi", "11:22:33:44:55:01"
+    )

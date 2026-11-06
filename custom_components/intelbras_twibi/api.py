@@ -197,7 +197,10 @@ class TwibiClient:
             except TwibiError as err:
                 _LOGGER.debug("Skipping optional module %s: %s", module, err)
             await asyncio.sleep(OPTIONAL_MODULE_DELAY)
-        snapshot = RouterData.from_dict(data)
+        try:
+            snapshot = RouterData.from_dict(data)
+        except (KeyError, TypeError, AttributeError, IndexError) as err:
+            raise TwibiError(f"Unexpected router reply: {err!r}") from err
         if version := _version(snapshot.primary.firmware):
             self._cookie_auth = version >= COOKIE_AUTH_FIRMWARE
         return snapshot

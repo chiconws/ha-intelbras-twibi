@@ -40,11 +40,15 @@ async def async_setup_entry(
             }
             if not known:  # first run: keep trackers created in earlier sessions
                 registry = er.async_get(hass)
-                wanted |= {
-                    e.unique_id
-                    for e in er.async_entries_for_config_entry(registry, entry.entry_id)
-                    if e.domain == "device_tracker"
-                }
+                clients = coordinator.data.clients
+                for e in er.async_entries_for_config_entry(registry, entry.entry_id):
+                    if e.domain != "device_tracker":
+                        continue
+                    client = clients.get(e.unique_id)
+                    if wifi_only and client is not None and client.band == "wired":
+                        registry.async_remove(e.entity_id)
+                    else:
+                        wanted.add(e.unique_id)
         if new := wanted - known:
             known.update(new)
             async_add_entities(

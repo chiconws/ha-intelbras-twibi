@@ -6,7 +6,7 @@ from typing import Any, override
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api import RouterData, TwibiClient
@@ -47,11 +47,22 @@ async def async_setup_entry(
     """Create the switches the router reports."""
     coordinator = entry.runtime_data
     primary = coordinator.data.primary.serial
-    async_add_entities(
-        TwibiSwitch(coordinator, primary, desc)
-        for desc in SWITCHES
-        if desc.is_on_fn(coordinator.data) is not None
-    )
+    added: set[str] = set()
+
+    @callback
+    def add_new() -> None:
+        # Optional modules can fail on one poll; add their switch once they report.
+        new = [
+            desc
+            for desc in SWITCHES
+            if desc.key not in added and desc.is_on_fn(coordinator.data) is not None
+        ]
+        if new:
+            added.update(desc.key for desc in new)
+            async_add_entities(TwibiSwitch(coordinator, primary, desc) for desc in new)
+
+    add_new()
+    entry.async_on_unload(coordinator.async_add_listener(add_new))
 
 
 class TwibiSwitch(TwibiEntity, SwitchEntity):
