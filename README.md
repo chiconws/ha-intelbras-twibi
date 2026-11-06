@@ -95,6 +95,13 @@ logger:
   (comportamento padrão do HA); escolha-os em **Configurar** para ativá-los.
 - Firmwares diferentes respondem de formas diferentes; se algo faltar, abra uma issue com o diagnóstico.
 
+## Remoção
+
+1. Vá em **Configurações → Dispositivos e serviços → Intelbras Twibi**, abra ⋮ e selecione **Excluir**.
+2. Remova em **Configurações → Marketplace** (ou no HACS), ou apague
+   `custom_components/intelbras_twibi` se instalou manualmente.
+3. Reinicie o Home Assistant.
+
 ## Desenvolvimento
 
 Veja o [CONTRIBUTING.md](CONTRIBUTING.md) para configurar o ambiente, rodar as verificações e os testes, e o [AGENTS.md](AGENTS.md) para a estrutura do código.
