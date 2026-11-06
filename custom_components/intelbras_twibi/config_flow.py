@@ -99,6 +99,8 @@ class TwibiConfigFlow(ConfigFlow, domain=DOMAIN):
                 entry.data[CONF_HOST], user_input[CONF_PASSWORD]
             )
             if data:
+                await self.async_set_unique_id(data.primary.serial)
+                self._abort_if_unique_id_mismatch(reason="wrong_router")
                 return self.async_update_reload_and_abort(
                     entry, data_updates=user_input
                 )

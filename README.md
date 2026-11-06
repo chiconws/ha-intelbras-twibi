@@ -46,6 +46,17 @@ Depois baixe **Intelbras Twibi** no HACS e reinicie o Home Assistant.
    configuração do Home Assistant.
 3. Reinicie o Home Assistant.
 
+### Atualizando da v1.x
+
+A v0.1.0 é uma reescrita: o domínio mudou de `intelbras_twibi_router` para
+`intelbras_twibi` e a numeração recomeçou, então o Marketplace/HACS não oferece a
+atualização sozinho. O Home Assistant não move uma entrada entre domínios:
+
+1. Exclua a entrada antiga **Intelbras Twibi** em **Configurações → Dispositivos e
+   serviços** e remova a versão antiga no Marketplace/HACS.
+2. Apague a pasta `custom_components/intelbras_twibi_router`, se ainda existir.
+3. Instale a versão atual, reinicie o Home Assistant e adicione a integração de novo.
+
 ## Configuração
 
 [![Configurar Intelbras Twibi na sua instância do Home Assistant.][badge-my-config]][link-my-config]

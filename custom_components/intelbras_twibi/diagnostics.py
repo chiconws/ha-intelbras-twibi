@@ -17,6 +17,12 @@ TO_REDACT = {
     "groupsn",
     "ip",
     "dev_ip",
+    "mac",
+    "dev_mac",
+    "lan_mac",
+    "wan_mac",
+    "2Gwifi_mac",
+    "5Gwifi_mac",
 }
 
 

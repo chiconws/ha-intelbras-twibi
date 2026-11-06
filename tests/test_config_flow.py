@@ -143,3 +143,17 @@ async def test_options(hass: HomeAssistant, loaded) -> None:
         CONF_WIFI_ONLY: True,
         CONF_TRACKED_DEVICES: ["11:22:33:44:55:01"],
     }
+
+
+async def test_reauth_other_router(
+    hass: HomeAssistant, loaded, client, payload
+) -> None:
+    """Reauth aborts when the host now answers as a different mesh."""
+    for node in payload["node_info"]:
+        node["sn"] = "OTHER" + node["sn"]
+    result = await loaded.start_reauth_flow(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_PASSWORD: "new"}
+    )
+    assert result["reason"] == "wrong_router"
+    assert loaded.data[CONF_PASSWORD] != "new"
